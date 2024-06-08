@@ -1,19 +1,19 @@
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
-from rest_framework.parsers import MultiPartParser
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import Q
+
 from django.shortcuts import get_object_or_404
-from .models import Product, Company
+from .models import Product
 from .serializers import ProductSerializer
 
 
-class ProductAPIViewe(GenericAPIView):
+class ProductAPIView(GenericAPIView):
     serializer_class=ProductSerializer
     queryset=Product.objects.all()
     def get(self,request,categoryname):
         n=int(request.GET.get('n'))
+
         query=self.queryset.filter(category=categoryname)[:n]
         page_number=1
         p = Paginator(query,10)
@@ -27,5 +27,18 @@ class ProductAPIViewe(GenericAPIView):
             page_obj = p.page(p.num_pages)
         serializer=self.serializer_class(page_obj,many=True)
         response={"no_of_pages":pages,"no_of_products":count,"blogs":serializer.data}
+        
+        return Response(response,status=status.HTTP_200_OK)
+
+
+class ProductGETAPIView(GenericAPIView):
+    serializer_class=ProductSerializer
+    queryset=Product.objects.all()
+    def get(self,request,categoryname,productId):
+
+        query=get_object_or_404(Product , id=productId,category=categoryname)
+
+        serializer=self.serializer_class(query,many=False)
+        response={"status":200,"data":serializer.data}
         
         return Response(response,status=status.HTTP_200_OK)
