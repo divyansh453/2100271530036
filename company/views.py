@@ -14,8 +14,21 @@ class ProductAPIView(GenericAPIView):
     def get(self,request,categoryname):
         n=int(request.GET.get('n'))
 
-        query=self.queryset.filter(category=categoryname)[:n]
+        query=self.queryset.filter(category=categoryname)
+        rating=request.GET.get('rating')
+        if rating:
+            query=query.filter(rating__gte=rating)
+        price=request.GET.get('price')
+        if price:
+            query=query.filter(price__gte=price)
+        company=request.GET.get('company')
+        if company:
+            query=query.filter(company__code= company)
+        discount=request.GET.get('discount')
+        if discount:
+            query=query.filter(discount__gte=discount)
         page_number=1
+        query=query[:n]
         p = Paginator(query,10)
         pages=p.num_pages
         count=query.count()
