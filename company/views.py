@@ -12,7 +12,7 @@ from .serializers import ProductSerializer
 class ProductAPIViewe(GenericAPIView):
     serializer_class=ProductSerializer
     queryset=Product.objects.all()
-    def get(self,request):
+    def get(self,request,categoryname):
         
-        serializer=self.serializer_class(self.get_queryset(),many=True)
+        serializer=self.serializer_class(self.queryset.filter(category=categoryname),many=True)
         return Response(serializer.data,status=status.HTTP_200_OK)
