@@ -13,6 +13,19 @@ class ProductAPIViewe(GenericAPIView):
     serializer_class=ProductSerializer
     queryset=Product.objects.all()
     def get(self,request,categoryname):
+        n=int(request.GET.get('n'))
+        query=self.queryset.filter(category=categoryname)[:n]
+        page_number=1
+        p = Paginator(query,10)
+        pages=p.num_pages
+        count=query.count()
+        try:
+            page_obj = p.get_page(page_number)
+        except PageNotAnInteger:
+            page_obj = p.page(1)
+        except EmptyPage:
+            page_obj = p.page(p.num_pages)
+        serializer=self.serializer_class(page_obj,many=True)
+        response={"no_of_pages":pages,"no_of_products":count,"blogs":serializer.data}
         
-        serializer=self.serializer_class(self.queryset.filter(category=categoryname),many=True)
-        return Response(serializer.data,status=status.HTTP_200_OK)
+        return Response(response,status=status.HTTP_200_OK)
